@@ -1,0 +1,16 @@
+flow:
+  id: 'quotes'
+  description: 'REST -> flow -> quote.flow (dummyjson proxy)'
+  ttl: 10s
+
+first.task: 'quote.flow'
+
+tasks:
+  - input:
+      - 'input.path_parameter.id -> id'
+    process: 'quote.flow'
+    output:
+      - 'text(application/json) -> output.header.content-type'
+      - 'result -> output.body'
+    description: 'Fetch quote from dummyjson'
+    execution: end

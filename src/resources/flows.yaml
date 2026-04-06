@@ -1,4 +1,5 @@
 flows:
   - 'greetings.yml'
+  - 'quotes.yml'
 
 location: 'classpath:/flows/'

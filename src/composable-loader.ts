@@ -4,6 +4,7 @@ import { AppConfig, Platform, RestAutomation, EventScriptEngine, Logger } from '
 import { HelloDirect } from './services/hello-direct.js';
 import { GreetingDemo } from './services/greeting-demo.js';
 import { QuoteDirect } from './services/quote-direct.js';
+import { QuoteFlow } from './services/quote-flow.js';
 
 const log = Logger.getInstance();
 
@@ -44,6 +45,8 @@ export class ComposableLoader {
             platform.register('greeting.demo', new GreetingDemo().initialize(), 10);
             // Direct REST -> dummyjson quote proxy
             platform.register('quote.direct', new QuoteDirect().initialize(), 10);
+            // Flow task invoked from flows/quotes.yml
+            platform.register('quote.flow', new QuoteFlow().initialize(), 10);
 
             // 3. Compile YAML flows and start the Event Script engine
             const engine = new EventScriptEngine();

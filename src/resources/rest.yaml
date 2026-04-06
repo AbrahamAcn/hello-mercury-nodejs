@@ -27,6 +27,16 @@ rest:
     headers: header_1
     tracing: true
 
+  # Flow style: REST -> http.flow.adapter -> flows/quotes.yml -> quote.flow
+  - service: 'http.flow.adapter'
+    methods: ['GET']
+    url: '/api/quote/flow/{id}'
+    flow: 'quotes'
+    timeout: 10s
+    cors: cors_1
+    headers: header_1
+    tracing: true
+
 cors:
   - id: cors_1
     options:
