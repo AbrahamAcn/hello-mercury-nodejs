@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quote viewer</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f5f5f7;
+      --fg: #1a1a1a;
+      --muted: #6b7280;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --accent: #2563eb;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1115;
+        --fg: #e5e7eb;
+        --muted: #9ca3af;
+        --card: #181b21;
+        --border: #2a2f38;
+        --accent: #60a5fa;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 2rem 1rem;
+      background: var(--bg);
+      color: var(--fg);
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .card {
+      width: min(640px, 100%);
+      padding: 2rem 2.25rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    }
+    h1 {
+      margin: 0 0 1.25rem 0;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    blockquote {
+      margin: 0;
+      padding: 0;
+      font-size: 1.5rem;
+      line-height: 1.4;
+      font-style: italic;
+      min-height: 4em;
+    }
+    blockquote::before { content: "\201C"; margin-right: 0.1em; color: var(--muted); }
+    blockquote::after { content: "\201D"; margin-left: 0.1em; color: var(--muted); }
+    .author {
+      margin: 1rem 0 1.75rem 0;
+      text-align: right;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+    .author::before { content: "— "; }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    nav .group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+    button, input[type="number"] {
+      font: inherit;
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--fg);
+      cursor: pointer;
+    }
+    input[type="number"] {
+      width: 5rem;
+      cursor: text;
+    }
+    button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .hint {
+      margin: 1.25rem 0 0 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    .hint code {
+      background: var(--bg);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+    }
+    .error blockquote { color: #dc2626; font-style: normal; }
+  </style>
+</head>
+<body>
+  <main class="card" id="card">
+    <h1>Quote viewer</h1>
+    <blockquote id="quote">Loading…</blockquote>
+    <p class="author" id="author"></p>
+    <nav>
+      <button id="prev" type="button">&larr; Prev</button>
+      <span class="group">
+        id:
+        <input id="idInput" type="number" min="1" value="1">
+        <button id="go" type="button">Go</button>
+      </span>
+      <button id="next" type="button">Next &rarr;</button>
+    </nav>
+    <p class="hint">Powered by <code>/api/quote/flow/{id}</code></p>
+  </main>
+
+  <script>
+    const $ = (sel) => document.querySelector(sel);
+    const card = $('#card');
+
+    function currentId() {
+      const n = parseInt(new URLSearchParams(location.search).get('id'), 10);
+      return Number.isFinite(n) && n >= 1 ? n : 1;
+    }
+
+    async function load(id) {
+      card.classList.remove('error');
+      $('#quote').textContent = 'Loading…';
+      $('#author').textContent = '';
+      $('#prev').disabled = id <= 1;
+      try {
+        const res = await fetch(`/api/quote/flow/${id}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const body = await res.json();
+        if (!body || typeof body.quote !== 'string') {
+          throw new Error(body && body.message ? body.message : 'no quote for this id');
+        }
+        $('#quote').textContent = body.quote;
+        $('#author').textContent = body.author || 'Unknown';
+        $('#idInput').value = String(body.id ?? id);
+        document.title = `#${body.id ?? id} — ${body.author || 'Quote'}`;
+      } catch (e) {
+        card.classList.add('error');
+        $('#quote').textContent = `Error: ${e.message}`;
+        $('#author').textContent = '';
+      }
+    }
+
+    function navigate(id) {
+      if (id < 1) id = 1;
+      history.pushState({ id }, '', `?id=${id}`);
+      load(id);
+    }
+
+    $('#prev').addEventListener('click', () => navigate(currentId() - 1));
+    $('#next').addEventListener('click', () => navigate(currentId() + 1));
+    $('#go').addEventListener('click', () => {
+      const n = parseInt($('#idInput').value, 10);
+      if (Number.isFinite(n) && n >= 1) navigate(n);
+    });
+    $('#idInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') $('#go').click();
+    });
+    window.addEventListener('popstate', () => load(currentId()));
+
+    load(currentId());
+  </script>
+</body>
+</html>
