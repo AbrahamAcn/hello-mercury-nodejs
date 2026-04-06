@@ -1,0 +1,14 @@
+application.name: 'hello-world-nodejs'
+info.app:
+  version: '1.0.0'
+  description: 'Mercury Composable Node.js hello-world (direct + flow styles)'
+
+server.port: 8084
+
+rest.automation: true
+yaml.rest.automation: classpath:/rest.yaml
+yaml.flow.automation: classpath:/flows.yaml
+
+log:
+  format: text
+  level: INFO
