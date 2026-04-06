@@ -1,8 +1,8 @@
-# hello-world-nodejs
+# Hello Mercury Composable
 
-A minimal Mercury Composable application that exposes the same hello-world in **two
-styles**, mirroring the sibling `hello-world-java` project so the two language
-implementations can be compared 1:1.
+A minimal [Mercury Composable](https://github.com/Accenture/mercury-nodejs) application written in TypeScript
+that demostrates the framework's **two wiring styles**, direct (REST function) and flow (REST `http.flow.adapter` YAML flow function)
+side by side.
 
 | Style          | Endpoint                          | Wiring                                                                    |
 | -------------- | --------------------------------- | ------------------------------------------------------------------------- |
