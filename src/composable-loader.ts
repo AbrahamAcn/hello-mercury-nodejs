@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import { AppConfig, Platform, RestAutomation, EventScriptEngine, Logger } from 'mercury-composable';
 import { HelloDirect } from './services/hello-direct.js';
 import { GreetingDemo } from './services/greeting-demo.js';
+import { QuoteDirect } from './services/quote-direct.js';
 
 const log = Logger.getInstance();
 
@@ -41,6 +42,8 @@ export class ComposableLoader {
             platform.register('hello.direct', new HelloDirect().initialize(), 10);
             // Style 2 — flow task invoked from flows/greetings.yml
             platform.register('greeting.demo', new GreetingDemo().initialize(), 10);
+            // Direct REST -> dummyjson quote proxy
+            platform.register('quote.direct', new QuoteDirect().initialize(), 10);
 
             // 3. Compile YAML flows and start the Event Script engine
             const engine = new EventScriptEngine();

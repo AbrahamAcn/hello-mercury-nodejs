@@ -8,6 +8,15 @@ rest:
     headers: header_1
     tracing: true
 
+  # Direct REST -> dummyjson quote proxy
+  - service: 'quote.direct'
+    methods: ['GET']
+    url: '/api/quote/direct/{id}'
+    timeout: 10s
+    cors: cors_1
+    headers: header_1
+    tracing: true
+
   # Style 2: REST -> http.flow.adapter -> flows/greetings.yml -> greeting.demo
   - service: 'http.flow.adapter'
     methods: ['GET']
